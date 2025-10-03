@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קודקס מונחי משחקי תפקידים</title>
+    
+    <!-- טעינת Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- טעינת פונט ALEF ו-Inter (כחלופה) -->
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* הגדרת הפונט הראשי - מאלצת שימוש ב-Alef */
+        body {
+            font-family: 'Alef', Inter, sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+        /* גלילה ותצוגה למודל - סגנון מגילה */
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            /* סגנון מגילה/פארצ'מנט לגבול - חום עמוק וצל עדין */
+            box-shadow: 0 5px 20px rgba(120, 53, 15, 0.5); 
+            border: 4px solid #78350f; /* Deep Amber/Brown */
+        }
+    </style>
+</head>
+
+<!-- רקע בהיר, דמוי פארצ'מנט/מגילה - Stone-100 -->
+<body class="bg-stone-100 text-gray-900 p-4 md:p-8">
+
+    <!-- כותרת ובקרי שליטה - מסגרת ספר עתיק - Stone-200 -->
+    <header class="mb-8 p-4 bg-stone-200 shadow-lg border-b-4 border-amber-900">
+        <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
+            <!-- H1: צבע דיו עמוק (Sepia) -->
+            <h1 class="text-3xl font-bold text-amber-900">קודקס מונחי משחקי תפקידים</h1>
+            
+            <!-- קישור לדף האודות -->
+            <a href="about.html" class="inline-block px-4 py-2 bg-amber-800 text-white text-lg font-bold rounded-sm shadow-md hover:bg-amber-900 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
+                אודות הפרויקט →
+            </a>
+        </div>
+        
+        <div class="flex flex-col md:flex-row gap-4">
+            <!-- אזור חיפוש - גבול חום חזק -->
+            <input type="text" id="search-input" placeholder="חפש מילה..."
+                   class="flex-1 p-3 border-2 border-amber-900 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
+            
+            <!-- אזור סינון לפי תגית - גבול חום חזק -->
+            <select id="tag-filter"
+                    class="p-3 border-2 border-amber-900 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
+                <option value="" class="bg-white">כל הנושאים</option>
+                <!-- אפשרויות יטענו ע"י JS -->
+            </select>
+        </div>
+    </header>
+    
+    <!-- רשת המילון הרספונסיבית -->
+    <main id="dictionary-grid" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+        <!-- המשבצות יטענו לכאן ע"י JavaScript -->
+    </main>
+    
+    <!-- הודעת טעינה/אין תוצאות - טקסט בצבע דיו חזק -->
+    <p id="loading-message" class="text-center text-lg text-amber-900 mt-12">טוען נתונים קריטיים...</p>
+    <!-- הודעת שגיאה באדום מעומעם -->
+    <p id="no-results-message" class="text-center text-lg text-red-700 mt-12 hidden">😔 לא נמצאו רשומות תואמות לקודקס הנתונים.</p>
+    
+    <!-- --- חלון קופץ (Modal) - עיצוב בהיר וממוסגר --- -->
+    <div id="word-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 hidden">
+        <!-- רקע נקי יותר במודל - Stone-50 -->
+        <div class="modal-content bg-stone-50 w-full max-w-2xl rounded-sm shadow-2xl p-6 transition-all transform scale-100">
+            <div class="flex justify-between items-start border-b border-amber-900 pb-3 mb-4">
+                <!-- כותרת מודל - צבע דיו עמוק -->
+                <h2 id="modal-title" class="text-3xl font-bold text-amber-900"></h2>
+                <button id="close-modal" class="text-gray-600 hover:text-amber-900 text-3xl font-light leading-none pr-2 transition duration-200">
+                    &times;
+                </button>
+            </div>
+            <div id="modal-body">
+                <!-- תוכן המילה המלא יוכנס לכאן -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- --- פוטר - רגל המסמך --- -->
+    <footer class="mt-12 pt-4 border-t-2 border-amber-900 bg-stone-200 text-center text-sm p-4 rounded-t-sm space-y-1">
+        <p class="text-amber-900">
+            מנוהל ע"י <a href="https://rrpg.top" target="_blank" class="font-bold text-amber-700 hover:text-amber-900 underline transition">גלגול - משחקי תפקידים למען הקהילה</a>
+        </p>
+        <p class="text-amber-900">
+            פותח ע"י <a href="https://lp.reuven.click" target="_blank" class="font-bold text-amber-700 hover:text-amber-900 underline transition">ראובן מנדלוביץ'</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript לניהול הלוגיקה, החיפוש, הסינון והקישור העמוק -->
+    <script>
+        // --- נתוני המילון (JSON) - ייטענו לכאן ---        
+        let dictionaryData = []; 
+
+        // --- קבועים ומשתנים גלובליים ---
+        const gridContainer = document.getElementById('dictionary-grid');
+        const searchInput = document.getElementById('search-input');
+        const tagFilter = document.getElementById('tag-filter');
+        const modal = document.getElementById('word-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const closeButton = document.getElementById('close-modal');
+        const loadingMessage = document.getElementById('loading-message');
+        const noResultsMessage = document.getElementById('no-results-message');
+        
+        const HEBREW_DETAILS_MAP = {
+            gender: "מין",
+            binyan: "בניין",
+            root: "שורש",
+            inflection: "נטייה",
+            verbInflection: "נטיית הפועל"
+        };
+        const MAX_PREVIEW_LENGTH = 100;         
+        const MAX_VISIBLE_TAGS = 3; 
+
+        // --- פונקציות לטיפול ב-URL (קידוד ופענוח) ---
+        function encodeWord(word) {
+            return encodeURIComponent(word);
+        }
+        
+        function decodeWord(encodedWord) {
+            try {
+                return decodeURIComponent(encodedWord);
+            } catch (e) {
+                console.error("Failed to decode URI component:", encodedWord, e);
+                return '';
+            }
+        }
+        
+        // --- פונקציות עזר ---
+        function truncateText(text, maxLength = MAX_PREVIEW_LENGTH) {
+            if (text.length <= maxLength) {
+                return text;
+            }
+            return text.substring(0, maxLength).trim() + '...';
+        }
+
+        /**
+         * בונה את קוד ה-HTML של משבצת מילה (Card).
+         * @param {Object} item - אובייקט המילה מהמילון.
+         * @returns {string} - מחרוזת HTML של המשבצת.
+         */
+        function createCardHtml(item) {
+            const cardId = encodeWord(item.word); 
+            const definitionPreview = truncateText(item.definition);
+            const visibleTags = item.tags.slice(0, MAX_VISIBLE_TAGS);
+            const extraTagsCount = item.tags.length - MAX_VISIBLE_TAGS;
+
+            let tagsHtml = visibleTags.map(tag =>
+                `<span class="tag inline-block bg-red-900/10 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-sm ml-2 whitespace-nowrap border border-red-900/50">${tag}</span>`
+            ).join('');
+
+            if (extraTagsCount > 0) {
+                tagsHtml += `<span class="tag inline-block bg-stone-200 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-sm ml-2 whitespace-nowrap border border-stone-300">+${extraTagsCount}</span>`;
+            }
+
+            // עיצוב כרטיס: רקע פארצ'מנט מנוטרל (stone-50), גבול חזק, צל עדין דמוי עומק
+            return `
+                <div data-id="${cardId}" 
+                     data-tags="${item.tags.join(' ')}" 
+                     class="word-card bg-stone-50 p-5 border-2 border-amber-900 rounded-sm shadow-[0_5px_15px_rgba(120,53,15,0.2)] hover:shadow-[0_8px_20px_rgba(120,53,15,0.4)] hover:scale-[1.02] transition transform duration-300 cursor-pointer" 
+                     tabindex="0">
+                    
+                    <!-- מילה ראשית: צבע דיו עמוק (Sepia) -->
+                    <h2 class="main-word text-2xl font-extrabold text-amber-900 mb-2">${item.word}</h2>
+                    
+                    <div class="tags-list mb-3 flex flex-wrap gap-y-1">
+                        ${tagsHtml}
+                    </div>
+
+                    <p class="source-en text-base text-gray-600 mb-2 font-medium">מקור (EN): ${item.sourceEn}</p>
+
+                    <p class="definition-preview text-base text-gray-800 font-medium">
+                        ${definitionPreview}
+                    </p>
+                </div>
+            `;
+        }
+
+        /**
+         * מרנדר את המילים הנוכחיות ב-Grid.
+         * @param {Array} data - מערך המילים להצגה.
+         */
+        function renderCards(data) {
+            gridContainer.innerHTML = data.map(createCardHtml).join('');
+
+            if (data.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+
+            // הוספת Event Listeners לכל משבצת חדשה
+            document.querySelectorAll('.word-card').forEach(card => {
+                card.addEventListener('click', () => openModal(card.dataset.id));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openModal(card.dataset.id);
+                    }
+                });
+            });
+        }
+
+        /**
+         * פותח את החלון הקופץ ומעדכן את ה-URL (Hash).
+         * @param {string} encodedWordId - המילה המקודדת (כפי שמופיעה ב-data-id).
+         */
+        function openModal(encodedWordId) {
+            const wordToFind = decodeWord(encodedWordId); 
+            // חיפוש באוסף הנתונים הגלובלי הטעון
+            const word = dictionaryData.find(item => item.word === wordToFind); 
+            if (!word) return;
+
+            // 1. עדכון ה-URL (Deep Linking) באמצעות Hash (#)
+            if (window.location.hash.substring(1) !== encodedWordId) {
+                window.location.hash = `#${encodedWordId}`;
+            }
+
+            // 2. בניית תוכן החלון הקופץ
+            modalTitle.textContent = word.word;
+
+            // בניית טבלת פרטים מלאה 
+            let fullDetailsTable = Object.keys(HEBREW_DETAILS_MAP)
+                .map(key => ({
+                    label: HEBREW_DETAILS_MAP[key],
+                    value: word.hebrewDetails[key]
+                }))
+                .filter(detail => detail.value && detail.value.trim() !== 'אין');
+
+            // בניית כל התגיות 
+            const allTagsHtml = word.tags.map(tag =>
+                `<span class="tag inline-block bg-red-900/10 text-red-700 text-sm font-medium px-3 py-1 rounded-sm ml-2 border border-red-900/50">${tag}</span>`
+            ).join('');
+
+            // קלאסים בהירים עבור המודל
+            const fullDetailsHtml = `
+                <div class="tags-list mb-4 flex flex-wrap gap-y-1">
+                    ${allTagsHtml}
+                </div>
+
+                <p class="source-en text-sm text-gray-600 mb-4">מקור באנגלית: <span class="font-semibold">${word.sourceEn}</span></p>
+
+                <!-- פירוט עברי מלא - מוצג רק במודל -->
+                ${fullDetailsTable.length > 0 ? `
+                    <!-- כותרת: צבע דיו עמוק -->
+                    <h3 class="text-xl font-semibold mt-4 mb-2 border-b border-amber-900 pb-1 text-amber-900">פירוט לשוני (עברי):</h3>
+                    <table class="w-full text-base text-gray-700">
+                        <tbody>
+                            ${fullDetailsTable.map(d => `
+                                <tr class="border-b border-stone-300 last:border-b-0">
+                                    <th class="py-1 pr-0 font-bold w-1/3 text-right text-amber-900">${d.label}:</th>
+                                    <td class="py-1 pl-0 font-normal w-2/3 text-right">${d.value}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : ''}
+
+                <!-- כותרת: צבע דיו עמוק -->
+                <h3 class="text-xl font-semibold mt-6 mb-2 border-b border-amber-900 pb-1 text-amber-900">פירוש מלא:</h3>
+                <p class="text-lg mb-6 leading-relaxed text-gray-800">${word.definition}</p>
+
+                <!-- כותרת: צבע דיו עמוק -->
+                <h3 class="text-xl font-semibold mt-6 mb-2 border-b border-amber-900 pb-1 text-amber-900">שימושים ודוגמאות:</h3>
+                <ul class="list-disc pr-5 space-y-2 text-gray-800">
+                    ${word.usages.map(u => `<li>${u}</li>`).join('')}
+                </ul>
+            `;
+            modalBody.innerHTML = fullDetailsHtml;
+
+            // 3. הצגת החלון הקופץ
+            modal.classList.remove('hidden');
+        }
+
+        /**
+         * סוגר את החלון הקופץ ומעדכן את ה-URL לבסיס.
+         */
+        function closeModal() {
+            modal.classList.add('hidden');
+            // הסרת הפרמטר מה-URL באמצעות Hash
+            window.location.hash = '';
+        }
+
+        /**
+         * מפעיל את החיפוש והסינון על כל הנתונים הטעונים.
+         */
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedTag = tagFilter.value;
+
+            const filteredData = dictionaryData.filter(item => {
+                if (!item || !item.word) return false;
+
+                // 1. סינון חיפוש טקסט
+                const searchMatch = item.word.toLowerCase().includes(searchTerm) ||
+                                    item.definition.toLowerCase().includes(searchTerm) ||
+                                    item.sourceEn.toLowerCase().includes(searchTerm);
+
+                // 2. סינון תגיות
+                const tagMatch = !selectedTag || item.tags.includes(selectedTag);
+
+                return searchMatch && tagMatch;
+            });
+            renderCards(filteredData);
+        }
+
+        /**
+         * טוען את כל התגיות הייחודיות ומכניס אותן לתיבת הבחירה.
+         */
+        function populateTags() {
+            const allTags = dictionaryData.flatMap(item => item.tags || []); // לוודא שדות קיימים
+            const uniqueTags = [...new Set(allTags)].sort();
+
+            const optionsHtml = uniqueTags.map(tag =>
+                `<option value="${tag}" class="bg-white">${tag}</option>`
+            ).join('');
+
+            // משמר את האפשרות "כל הנושאים"
+            tagFilter.innerHTML = `<option value="" class="bg-white">כל הנושאים</option>` + optionsHtml;
+        }
+
+        /**
+         * בודק אם יש פרמטר מילה ב-URL ופותח את החלון הקופץ בהתאם.
+         */
+        function checkUrlForWord() {
+            const encodedWordId = window.location.hash.substring(1); 
+            if (encodedWordId) {
+                // שימוש ב-setTimeout קצר כדי לוודא שכל האלמנטים רנדרו לפני פתיחת המודל
+                setTimeout(() => openModal(encodedWordId), 100);
+            }
+        }
+
+        /**
+         * פונקציית הטעינה הראשית - קוראת את ה-JSON ומפעילה את הלוגיקה
+         */
+        window.onload = async function() {
+            // --- שלב 1: טעינת הנתונים מ-JSON ---
+            try {
+                const response = await fetch('terms.json');
+                if (!response.ok) throw new Error('Failed to load terms.json');
+                
+                dictionaryData = await response.json();
+                loadingMessage.classList.add('hidden'); // הסתרת הודעת הטעינה
+                
+            } catch (error) {
+                console.error("Error loading dictionary data:", error);
+                loadingMessage.textContent = 'אירעה שגיאה קריטית בטעינת נתוני המילון.';
+                loadingMessage.classList.remove('hidden');
+                loadingMessage.classList.add('text-red-700', 'font-bold');
+                return; // הפסקת האתחול
+            }
+
+            // --- שלב 2: הפעלת הלוגיקה המקורית ---
+            populateTags();
+            renderCards(dictionaryData);
+            checkUrlForWord();
+
+            // 5. הוספת מאזינים לפקדי השליטה
+            searchInput.addEventListener('input', applyFilters);
+            tagFilter.addEventListener('change', applyFilters);
+            closeButton.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // 6. טיפול בכפתור "אחורה" בדפדפן (Browser Back Button)
+            window.addEventListener('popstate', (e) => {
+                const encodedWordId = window.location.hash.substring(1);
+
+                if (encodedWordId) {
+                    openModal(encodedWordId);
+                } else {
+                    if (!modal.classList.contains('hidden')) { 
+                         modal.classList.add('hidden');
+                    }
+                }
+            });
+        };
+    </script>
+</body>
+</html>
