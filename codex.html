@@ -37,32 +37,32 @@
         <div class="flex justify-between items-center flex-wrap gap-4 mb-4">
             <!-- H1: צבע דיו עמוק (Sepia) -->
             <h1 class="text-3xl font-bold text-amber-900">קודקס מונחי משחקי תפקידים</h1>
-            
-                <!-- קישורי ניווט - 3 כפתורים -->
-                <div class="flex items-center gap-3 md:gap-4"> 
-                    
-                    <!-- 1. כפתור דף הבית (צבע ראשי) -->
-                    <a href="index.html" class="inline-block px-4 py-2 bg-amber-900 text-white text-base font-bold rounded-sm shadow-md hover:bg-amber-700 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
-                        דף הבית
-                    </a>
-                    
-                    <!-- 2. קישור אודות (כפתור משני זהה למילון) -->
-                    <a href="about.html" class="inline-block px-4 py-2 bg-amber-900 text-white text-base font-bold rounded-sm shadow-md hover:bg-amber-700 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
-                        אודות
-                    </a>
-                    
-                    <!-- 3. כפתור מעבר למילון המלא (כפתור משני זהה לאודות) -->
-                    <a href="codex.html" class="inline-block px-4 py-2 bg-red-800 text-white text-base font-bold rounded-sm shadow-md hover:bg-red-900 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
-                        המילון המלא
-                    </a>
-                </div>
+                            
+            <!-- קישורי ניווט - 3 כפתורים -->
+            <div class="flex items-center gap-3 md:gap-4"> 
+                                     
+                <!-- 1. כפתור דף הבית (צבע משני) -->
+                <a href="index.html" class="inline-block px-4 py-2 bg-amber-900 text-white text-base font-bold rounded-sm shadow-md hover:bg-amber-700 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
+                    דף הבית
+                </a>
+                                
+                <!-- 2. קישור אודות (כפתור משני זהה למילון) -->
+                <a href="about.html" class="inline-block px-4 py-2 bg-amber-900 text-white text-base font-bold rounded-sm shadow-md hover:bg-amber-700 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
+                    אודות
+                </a>
+                                
+                <!-- 3. כפתור מעבר למילון המלא (צבע ראשי) -->
+                <a href="codex.html" class="inline-block px-4 py-2 bg-red-800 text-white text-base font-bold rounded-sm shadow-md hover:bg-red-900 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
+                    המילון המלא
+                </a>
+            </div>
         </div>
-        
+                
         <div class="flex flex-col md:flex-row gap-4">
             <!-- אזור חיפוש - גבול חום חזק -->
             <input type="text" id="search-input" placeholder="חפש מילה..."
                    class="flex-1 p-3 border-2 border-amber-900 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
-            
+                        
             <!-- אזור סינון לפי תגית - גבול חום חזק -->
             <select id="tag-filter"
                     class="p-3 border-2 border-amber-900 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
@@ -71,17 +71,17 @@
             </select>
         </div>
     </header>
-    
+
     <!-- רשת המילון הרספונסיבית -->
     <main id="dictionary-grid" class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-6">
         <!-- המשבצות יטענו לכאן ע"י JavaScript -->
     </main>
-    
+
     <!-- הודעת טעינה/אין תוצאות - טקסט בצבע דיו חזק -->
     <p id="loading-message" class="text-center text-lg text-amber-900 mt-12">טוען נתונים קריטיים...</p>
     <!-- הודעת שגיאה באדום מעומעם -->
     <p id="no-results-message" class="text-center text-lg text-red-700 mt-12 hidden">😔 לא נמצאו רשומות תואמות לקודקס הנתונים.</p>
-    
+
     <!-- --- חלון קופץ (Modal) - עיצוב בהיר וממוסגר --- -->
     <div id="word-modal" class="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4 hidden">
         <!-- רקע נקי יותר במודל - Stone-50 -->
@@ -98,7 +98,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- --- פוטר - רגל המסמך --- -->
     <footer class="mt-12 pt-4 border-t-2 border-amber-900 bg-stone-200 text-center text-sm p-4 rounded-t-sm space-y-1">
         <p class="text-amber-900">
@@ -111,9 +111,9 @@
 
     <!-- JavaScript לניהול הלוגיקה, החיפוש, הסינון והקישור העמוק -->
     <script>
-        // --- נתוני המילון (JSON) - ייטענו לכאן ---        
+        // --- נתוני המילון (JSON) - ייטענו לכאן ---
         let dictionaryData = []; 
-
+        
         // --- קבועים ומשתנים גלובליים ---
         const gridContainer = document.getElementById('dictionary-grid');
         const searchInput = document.getElementById('search-input');
@@ -132,7 +132,7 @@
             inflection: "נטייה",
             verbInflection: "נטיית הפועל"
         };
-        const MAX_PREVIEW_LENGTH = 100;         
+        const MAX_PREVIEW_LENGTH = 100; 
         const MAX_VISIBLE_TAGS = 3; 
 
         // --- פונקציות לטיפול ב-URL (קידוד ופענוח) ---
@@ -178,20 +178,20 @@
 
             // עיצוב כרטיס: רקע פארצ'מנט מנוטרל (stone-50), גבול חזק, צל עדין דמוי עומק
             return `
-                <div data-id="${cardId}" 
-                     data-tags="${item.tags.join(' ')}" 
-                     class="word-card bg-stone-50 p-5 border-2 border-amber-900 rounded-sm shadow-[0_5px_15px_rgba(120,53,15,0.2)] hover:shadow-[0_8px_20px_rgba(120,53,15,0.4)] hover:scale-[1.02] transition transform duration-300 cursor-pointer" 
-                     tabindex="0">
-                    
+                <div data-id="${cardId}"
+                      data-tags="${item.tags.join(' ')}"
+                      class="word-card bg-stone-50 p-5 border-2 border-amber-900 rounded-sm shadow-[0_5px_15px_rgba(120,53,15,0.2)] hover:shadow-[0_8px_20px_rgba(120,53,15,0.4)] hover:scale-[1.02] transition transform duration-300 cursor-pointer"
+                      tabindex="0">
+                                        
                     <!-- מילה ראשית: צבע דיו עמוק (Sepia) -->
                     <h2 class="main-word text-2xl font-extrabold text-amber-900 mb-2">${item.word}</h2>
-                    
+                                        
                     <div class="tags-list mb-3 flex flex-wrap gap-y-1">
                         ${tagsHtml}
                     </div>
 
                     <p class="source-en text-base text-gray-600 mb-2 font-medium">מקור (EN): ${item.sourceEn}</p>
-
+                    
                     <p class="definition-preview text-base text-gray-800 font-medium">
                         ${definitionPreview}
                     </p>
@@ -232,6 +232,7 @@
             const wordToFind = decodeWord(encodedWordId); 
             // חיפוש באוסף הנתונים הגלובלי הטעון
             const word = dictionaryData.find(item => item.word === wordToFind); 
+
             if (!word) return;
 
             // 1. עדכון ה-URL (Deep Linking) באמצעות Hash (#)
@@ -305,26 +306,58 @@
         }
 
         /**
-         * מפעיל את החיפוש והסינון על כל הנתונים הטעונים.
+         * מפעיל את החיפוש והסינון על כל הנתונים הטעונים, וממיין לפי רמת התאמה.
          */
         function applyFilters() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             const selectedTag = tagFilter.value;
 
-            const filteredData = dictionaryData.filter(item => {
-                if (!item || !item.word) return false;
-
-                // 1. סינון חיפוש טקסט
-                const searchMatch = item.word.toLowerCase().includes(searchTerm) ||
-                                    item.definition.toLowerCase().includes(searchTerm) ||
-                                    item.sourceEn.toLowerCase().includes(searchTerm);
-
-                // 2. סינון תגיות
-                const tagMatch = !selectedTag || item.tags.includes(selectedTag);
-
-                return searchMatch && tagMatch;
+            // 1. סינון ראשוני לפי תגית (אם נבחרה)
+            let currentData = dictionaryData.filter(item => {
+                // בדיקה אם יש תגיות ובדיקה להתאמה
+                const tagMatch = !selectedTag || (item.tags && item.tags.includes(selectedTag));
+                return tagMatch;
             });
-            renderCards(filteredData);
+            
+            // אם אין מילת חיפוש, מציגים את הכל לפי סינון תגית בלבד
+            if (searchTerm.length === 0) {
+                renderCards(currentData);
+                return;
+            }
+
+            // 2. חישוב ניקוד, סינון ומיון לפי מילת חיפוש
+            const scoredData = currentData.map(item => {
+                const wordLower = item.word.toLowerCase();
+                const sourceEnLower = item.sourceEn.toLowerCase();
+                let score = 0;
+
+                // 1. ציון 3: התאמה מדויקת (עברית או אנגלית) - הכי חשוב
+                if (wordLower === searchTerm || sourceEnLower === searchTerm) {
+                    score = 3;
+                }
+                // 2. ציון 2: התחלה תואמת (עברית או אנגלית)
+                else if (wordLower.startsWith(searchTerm) || sourceEnLower.startsWith(searchTerm)) {
+                    score = 2;
+                }
+                // 3. ציון 1: הכלה חלקית במילה (עברית או אנגלית)
+                else if (wordLower.includes(searchTerm) || sourceEnLower.includes(searchTerm)) {
+                    score = 1;
+                }
+                // 4. ציון 0.5: הכלה חלקית בהגדרה (הפירוש)
+                else if (item.definition.toLowerCase().includes(searchTerm)) {
+                    score = 0.5;
+                }
+
+                // מחזירים את האובייקט המקורי עם הציון
+                return { ...item, score }; 
+            });
+
+            // 3. סינון לפי ציון (מעל 0) ומיון
+            const finalFilteredAndSortedData = scoredData
+                .filter(entry => entry.score > 0) // מסנן החוצה את אלו שלא נמצאו כלל
+                .sort((a, b) => b.score - a.score); // ממיין מהציון הגבוה לנמוך
+
+            renderCards(finalFilteredAndSortedData);
         }
 
         /**
@@ -361,10 +394,10 @@
             try {
                 const response = await fetch('terms.json');
                 if (!response.ok) throw new Error('Failed to load terms.json');
-                
+                                
                 dictionaryData = await response.json();
                 loadingMessage.classList.add('hidden'); // הסתרת הודעת הטעינה
-                
+                            
             } catch (error) {
                 console.error("Error loading dictionary data:", error);
                 loadingMessage.textContent = 'אירעה שגיאה קריטית בטעינת נתוני המילון.';
@@ -375,7 +408,8 @@
 
             // --- שלב 2: הפעלת הלוגיקה המקורית ---
             populateTags();
-            renderCards(dictionaryData);
+            // שימוש ב-applyFilters כדי להציג את כל הנתונים בהתחלה
+            applyFilters(); 
             checkUrlForWord();
 
             // 5. הוספת מאזינים לפקדי השליטה
@@ -395,8 +429,8 @@
                 if (encodedWordId) {
                     openModal(encodedWordId);
                 } else {
-                    if (!modal.classList.contains('hidden')) { 
-                         modal.classList.add('hidden');
+                    if (!modal.classList.contains('hidden')) {
+                          modal.classList.add('hidden');
                     }
                 }
             });
@@ -404,4 +438,3 @@
     </script>
 </body>
 </html>
-
