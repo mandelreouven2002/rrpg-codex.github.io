@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- כותרת מותאמת ל-SEO -->
-    <title>קודקס מונחי משחקי תפקידים | מילון הרר&quot;פ המלא</title>
+    <title>קודקס מונחי משחקי תפקידים | מילון הרר"פ המלא</title>
     
     <!-- טעינת Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -44,7 +44,7 @@
         <section class="mb-10 p-6 bg-white border-2 border-amber-700 rounded-sm shadow-lg text-lg">
             <h2 class="text-2xl font-bold text-amber-900 mb-3">מהו הקודקס?</h2>
             <p class="text-gray-700 leading-relaxed mb-3">
-                הקודקס הוא מילון עברי מקיף למונחים מעולם משחקי התפקידים השולחניים (רר&quot;פ - Role-Playing Games). הוא נועד לשמש ככלי עזר חיוני לשחקנים ומנחים, חדשים וותיקים כאחד, המעוניינים להעמיק את הבנתם בשפה המקצועית של התחום.
+                הקודקס הוא מילון עברי מקיף למונחים מעולם משחקי התפקידים השולחניים (רר"פ - Role-Playing Games). הוא נועד לשמש ככלי עזר חיוני לשחקנים ומנחים, חדשים וותיקים כאחד, המעוניינים להעמיק את הבנתם בשפה המקצועית של התחום.
             </p>
             <p class="text-gray-800 font-semibold mt-4">
                 נכון לעכשיו, הקודקס כולל <span id="term-count" class="text-red-700 text-2xl font-extrabold">0</span> מונחים מתורגמים ומפורטים.
@@ -81,11 +81,10 @@
     </footer>
 
     <!-- JavaScript לניהול החיפוש והקישור -->
-    <!-- הוספנו type="module" כדי לאפשר ייבוא מהקובץ החיצוני terms.js -->
-    <script type="module">
-        // --- ייבוא נתוני המילון מתוך הקובץ terms.js ---
-        import { dictionaryData } from './terms.js';
-
+    <script>
+        // --- נתוני המילון - ייטענו לכאן באופן א-סינכרוני ---
+        let dictionaryData = []; 
+        
         // --- קבועים ומשתנים גלובליים ---
         const searchInput = document.getElementById('home-search-input');
         const resultsContainer = document.getElementById('results-container');
@@ -116,8 +115,7 @@
             // הבלוק כולו הוא קישור שמוביל לדף המילון עם ה-hash המתאים.
             return `
                 <a href="codex.html#${encodedWord}" 
-                   class="p-4 bg-white border border-amber-800 rounded-sm shadow-sm cursor-pointer 
-                          flex justify-between items-start transition-all duration-200 hover:bg-amber-100" 
+                   class="p-4 bg-white flex justify-between items-start transition-all duration-200 hover:bg-amber-100 mt-2" 
                    title="לחץ לפירוט המלא על המונח ${item.word}">
                     
                     <!-- צד ימין: עברית + אנגלית -->
@@ -139,6 +137,12 @@
          * ממוין לפי התאמה: מדויק > התחלה > הכלה. מוגבל ל-5 תוצאות.
          */
         function applySearch() {
+            // אם הנתונים עדיין לא נטענו, אין מה לחפש
+            if (dictionaryData.length === 0) {
+                 searchStatus.textContent = '❌ ממתין לטעינת נתוני המילון (terms.json)...';
+                 return;
+            }
+
             const searchTerm = searchInput.value.toLowerCase().trim();
             const MAX_RESULTS = 5; // הגבלה ל-5 תוצאות
 
@@ -171,14 +175,15 @@
                     score = 0.5;
                 }
 
-                return { ...item, score };
+                return { ...item, score, item }; // מחזירים את האובייקט המקורי עם הציון
             });
 
             // סינון, מיון לפי ציון (מהגבוה לנמוך) והגבלה
             const filteredAndSortedData = scoredData
-                .filter(item => item.score > 0) // מסנן החוצה את אלו שלא נמצאו כלל
+                .filter(entry => entry.score > 0) // מסנן החוצה את אלו שלא נמצאו כלל
                 .sort((a, b) => b.score - a.score) // ממיין מהציון הגבוה לנמוך
-                .slice(0, MAX_RESULTS); // מגביל ל-5 התוצאות הראשונות
+                .slice(0, MAX_RESULTS) // מגביל ל-5 התוצאות הראשונות
+                .map(entry => entry.item); // מחזיר רק את אובייקט המילה המקורי
 
             renderResults(filteredAndSortedData);
         }
@@ -197,18 +202,54 @@
         }
 
         /**
-         * פונקציית אתחול
+         * פונקציית אתחול - כוללת טעינת נתונים
          */
-        window.onload = function () {
-            // עדכון מונה המונחים
-            termCountElement.textContent = dictionaryData.length;
+        window.onload = async function () {
+            // הצגת הודעת טעינה
+            termCountElement.textContent = 'טוען...';
+            termCountElement.classList.remove('text-red-700');
+            termCountElement.classList.add('text-gray-500');
+            searchStatus.textContent = 'טוען נתוני מילון ראשוניים...';
 
-            // מאזין לאירועי קלט
-            searchInput.addEventListener('input', applySearch);
+
+            // --- שלב 1: טעינת הנתונים מ-JSON ---
+            try {
+                // ** חָשׁוּב: הקריאה ל-fetch מניחה שקובץ terms.json נמצא באותה תיקייה **
+                const response = await fetch('terms.json');
+                
+                // בדיקה אם ה-Fetch הצליח (קוד 200)
+                if (!response.ok) {
+                    throw new Error(`Failed to load terms.json. Status: ${response.status}.`);
+                }
+                
+                dictionaryData = await response.json();
+                
+                // --- שלב 2: אתחול ממשק המשתמש לאחר הטעינה ---
+                
+                // עדכון מונה המונחים
+                termCountElement.textContent = dictionaryData.length;
+                termCountElement.classList.remove('text-gray-500');
+                termCountElement.classList.add('text-red-700');
+
+                // הוספת מאזין לאירועי קלט
+                searchInput.addEventListener('input', applySearch);
+                
+                // מצב ראשוני: לא מציג תוצאות, רק מנחה
+                resultsContainer.innerHTML = '';
+                searchStatus.textContent = 'הקלד מילה בעברית או באנגלית כדי לחפש בקודקס.';
             
-            // **שינוי:** לא מרנדרים את כל התוצאות בטעינת הדף, רק מציגים הודעת הנחייה.
-            resultsContainer.innerHTML = '';
-            searchStatus.textContent = 'הקלד מילה בעברית או באנגלית כדי לחפש בקודקס.';
+            } catch (error) {
+                console.error("Error loading dictionary data:", error);
+                
+                // הצגת הודעת שגיאה ברורה בממשק המשתמש
+                termCountElement.textContent = 'שגיאה';
+                termCountElement.classList.remove('text-gray-500');
+                termCountElement.classList.add('text-red-700');
+                searchStatus.textContent = '❌ שגיאה קריטית: נתוני המילון (terms.json) לא נטענו. בדוק שהקובץ קיים ונגיש. פתח את קונסולת הדפדפן לפרטים נוספים.';
+                
+                // מונע אפשרות חיפוש אם הנתונים לא נטענו
+                searchInput.disabled = true; 
+            }
         };
     </script>
 </body>
