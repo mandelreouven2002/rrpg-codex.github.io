@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- כותרת מותאמת ל-SEO -->
+    <title>קודקס מונחי משחקי תפקידים | מילון הרר&quot;פ המלא</title>
+    
+    <!-- טעינת Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- טעינת פונט ALEF ו-Inter (כחלופה) -->
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* הגדרת הפונט הראשי - מאלצת שימוש ב-Alef */
+        body {
+            font-family: 'Alef', Inter, sans-serif;
+            direction: rtl;
+            text-align: right;
+        }
+    </style>
+</head>
+
+<!-- רקע בהיר, דמוי פארצ'מנט/מגילה - Stone-100 -->
+<body class="bg-stone-100 text-gray-900 p-4 md:p-10">
+
+    <div class="max-w-4xl mx-auto">
+        
+        <!-- כותרת ראשית ומעבר למילון -->
+        <header class="mb-10 p-4 bg-stone-200 shadow-lg border-b-4 border-amber-900 rounded-sm">
+            <div class="flex justify-between items-center flex-wrap gap-4">
+                <!-- H1: צבע דיו עמוק (Sepia) -->
+                <h1 class="text-4xl md:text-5xl font-extrabold text-amber-900">ברוכים הבאים לקודקס</h1>
+                
+                <!-- כפתור מעבר למילון המלא -->
+                <a href="codex.html" class="inline-block px-6 py-3 bg-red-800 text-white text-lg font-bold rounded-sm shadow-md hover:bg-red-900 transition duration-300 transform hover:scale-[1.01] whitespace-nowrap">
+                    👈 מעבר למילון המלא
+                </a>
+            </div>
+        </header>
+
+        <!-- בלוק מידע על הפרויקט -->
+        <section class="mb-10 p-6 bg-white border-2 border-amber-700 rounded-sm shadow-lg text-lg">
+            <h2 class="text-2xl font-bold text-amber-900 mb-3">מהו הקודקס?</h2>
+            <p class="text-gray-700 leading-relaxed mb-3">
+                הקודקס הוא מילון עברי מקיף למונחים מעולם משחקי התפקידים השולחניים (רר&quot;פ - Role-Playing Games). הוא נועד לשמש ככלי עזר חיוני לשחקנים ומנחים, חדשים וותיקים כאחד, המעוניינים להעמיק את הבנתם בשפה המקצועית של התחום.
+            </p>
+            <p class="text-gray-800 font-semibold mt-4">
+                נכון לעכשיו, הקודקס כולל <span id="term-count" class="text-red-700 text-2xl font-extrabold">0</span> מונחים מתורגמים ומפורטים.
+            </p>
+        </section>
+
+        <!-- בלוק חיפוש מהיר -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-bold text-amber-900 mb-4 border-b border-amber-900 pb-2">חיפוש מהיר</h2>
+            
+            <input type="text" id="home-search-input" placeholder="חפש מילה בעברית או באנגלית (לדוגמה: מנחה, DM, חוכמה)..."
+                   class="w-full p-4 border-2 border-amber-900 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
+            
+            <!-- הטקסט הזה ישתנה לפי מצב החיפוש -->
+            <p id="search-status" class="text-sm text-gray-600 mt-2">הקלד מילה בעברית או באנגלית כדי לחפש בקודקס.</p>
+        </section>
+
+        <!-- אזור תוצאות החיפוש -->
+        <!-- הסרנו את gap-6 כדי שהכרטיסים יהיו צמודים לחלוטין -->
+        <section id="results-container" class="grid grid-cols-1 mb-10">
+            <!-- תוצאות החיפוש יוצגו כאן -->
+        </section>
+
+    </div>
+    
+    <!-- --- פוטר - רגל המסמך --- -->
+    <footer class="mt-12 pt-4 border-t-2 border-amber-900 bg-stone-200 text-center text-sm p-4 rounded-t-sm space-y-1 max-w-4xl mx-auto">
+        <p class="text-amber-900">
+            מנוהל ע"י <a href="https://rrpg.top" target="_blank" class="font-bold text-amber-700 hover:text-amber-900 underline transition">גלגול - משחקי תפקידים למען הקהילה</a>
+        </p>
+        <p class="text-amber-900">
+            פותח ע"י <a href="https://lp.reuven.click" target="_blank" class="font-bold text-amber-700 hover:text-amber-900 underline transition">ראובן מנדלוביץ'</a>
+        </p>
+    </footer>
+
+    <!-- JavaScript לניהול החיפוש והקישור -->
+    <!-- הוספנו type="module" כדי לאפשר ייבוא מהקובץ החיצוני terms.js -->
+    <script type="module">
+        // --- ייבוא נתוני המילון מתוך הקובץ terms.js ---
+        import { dictionaryData } from './terms.js';
+
+        // --- קבועים ומשתנים גלובליים ---
+        const searchInput = document.getElementById('home-search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const searchStatus = document.getElementById('search-status');
+        const termCountElement = document.getElementById('term-count');
+        
+        const MAX_PREVIEW_LENGTH = 100;
+        
+        // --- פונקציות עזר ---
+        function encodeWord(word) {
+            return encodeURIComponent(word);
+        }
+        
+        function truncateText(text, maxLength = MAX_PREVIEW_LENGTH) {
+            if (text.length <= maxLength) {
+                return text;
+            }
+            return text.substring(0, maxLength).trim() + '...';
+        }
+
+        /**
+         * בונה את קוד ה-HTML של בלוק תוצאת חיפוש.
+         */
+        function createResultCardHtml(item) {
+            const encodedWord = encodeWord(item.word);
+            const definitionPreview = truncateText(item.definition);
+
+            // הבלוק כולו הוא קישור שמוביל לדף המילון עם ה-hash המתאים.
+            return `
+                <a href="codex.html#${encodedWord}" 
+                   class="p-4 bg-white border border-amber-800 rounded-sm shadow-sm cursor-pointer 
+                          flex justify-between items-start transition-all duration-200 hover:bg-amber-100" 
+                   title="לחץ לפירוט המלא על המונח ${item.word}">
+                    
+                    <!-- צד ימין: עברית + אנגלית -->
+                    <div class="text-right flex-grow pr-4">
+                        <h3 class="text-2xl font-extrabold text-amber-900 mb-1">${item.word}</h3>
+                        <p class="text-sm text-gray-600 font-medium">${item.sourceEn}</p>
+                    </div>
+
+                    <!-- צד שמאל: תקציר הפירוש -->
+                    <div class="text-right w-2/3 pl-2">
+                        <p class="text-gray-700 text-base leading-snug">${definitionPreview}</p>
+                    </div>
+                </a>
+            `;
+        }
+        
+        /**
+         * מפעיל את החיפוש ומציג תוצאות.
+         * ממוין לפי התאמה: מדויק > התחלה > הכלה. מוגבל ל-5 תוצאות.
+         */
+        function applySearch() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const MAX_RESULTS = 5; // הגבלה ל-5 תוצאות
+
+            // אם המשתמש לא הקליד מספיק, נקה את התוצאות
+            if (searchTerm.length < 2) {
+                resultsContainer.innerHTML = '';
+                searchStatus.textContent = 'הקלד לפחות 2 אותיות כדי להתחיל בחיפוש...';
+                return;
+            }
+
+            const scoredData = dictionaryData.map(item => {
+                const wordLower = item.word.toLowerCase();
+                const sourceEnLower = item.sourceEn.toLowerCase();
+                let score = 0;
+
+                // 1. ציון 3: התאמה מדויקת (עברית או אנגלית) - הכי חשוב
+                if (wordLower === searchTerm || sourceEnLower === searchTerm) {
+                    score = 3;
+                }
+                // 2. ציון 2: התחלה תואמת (עברית או אנגלית)
+                else if (wordLower.startsWith(searchTerm) || sourceEnLower.startsWith(searchTerm)) {
+                    score = 2;
+                }
+                // 3. ציון 1: הכלה חלקית במילה (עברית או אנגלית)
+                else if (wordLower.includes(searchTerm) || sourceEnLower.includes(searchTerm)) {
+                    score = 1;
+                }
+                // 4. ציון 0.5: הכלה חלקית בהגדרה (הפירוש)
+                else if (item.definition.toLowerCase().includes(searchTerm)) {
+                    score = 0.5;
+                }
+
+                return { ...item, score };
+            });
+
+            // סינון, מיון לפי ציון (מהגבוה לנמוך) והגבלה
+            const filteredAndSortedData = scoredData
+                .filter(item => item.score > 0) // מסנן החוצה את אלו שלא נמצאו כלל
+                .sort((a, b) => b.score - a.score) // ממיין מהציון הגבוה לנמוך
+                .slice(0, MAX_RESULTS); // מגביל ל-5 התוצאות הראשונות
+
+            renderResults(filteredAndSortedData);
+        }
+
+        /**
+         * מרנדר את התוצאות בתוך המכולה.
+         */
+        function renderResults(data) {
+            resultsContainer.innerHTML = data.map(createResultCardHtml).join('');
+
+            if (data.length === 0) {
+                searchStatus.textContent = `😔 לא נמצאו מונחים מתאימים לחיפוש "${searchInput.value}".`;
+            } else {
+                searchStatus.textContent = `נמצאו ${data.length} המונחים הרלוונטיים ביותר (מתוך עד 5). לחץ על כרטיס לפירוט המלא:`;
+            }
+        }
+
+        /**
+         * פונקציית אתחול
+         */
+        window.onload = function () {
+            // עדכון מונה המונחים
+            termCountElement.textContent = dictionaryData.length;
+
+            // מאזין לאירועי קלט
+            searchInput.addEventListener('input', applySearch);
+            
+            // **שינוי:** לא מרנדרים את כל התוצאות בטעינת הדף, רק מציגים הודעת הנחייה.
+            resultsContainer.innerHTML = '';
+            searchStatus.textContent = 'הקלד מילה בעברית או באנגלית כדי לחפש בקודקס.';
+        };
+    </script>
+</body>
+</html>
