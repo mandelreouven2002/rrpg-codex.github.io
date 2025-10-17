@@ -381,11 +381,11 @@
   {
     "word": "מנוע משחק",
     "tags": ["עיצוב שיטות ומכניקה", "היסטוריה והשפעות"],
-    "sourceEn": "Game Engine / ",
+    "sourceEn": "Game Engine",
     "hebrewDetails": {
       "gender": "זכר",
       "binyan": "",
-      "root": "נ.ו.ע",
+      "root": "",
       "inflection": "מנוע המשחק",
       "verbInflection": ""
     },
@@ -397,4 +397,5 @@
     ]
   }
 ]
+
 
