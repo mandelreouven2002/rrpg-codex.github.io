@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קודקס מונחי משחקי תפקידים</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            color-scheme: light;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Alef', Inter, sans-serif;
+            direction: rtl;
+            text-align: right;
+            background:
+                radial-gradient(circle at top right, rgba(120, 53, 15, 0.06), transparent 24%),
+                linear-gradient(to bottom, #fafaf9, #f5f5f4);
+        }
+
+        body.modal-open {
+            overflow: hidden;
+        }
+
+        .modal-content {
+            max-height: 88vh;
+            overflow-y: auto;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(120, 53, 15, 0.28);
+            border-radius: 999px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+    </style>
+</head>
+<body class="text-stone-900 p-4 md:p-6 lg:p-8">
+
+    <div class="mx-auto max-w-7xl">
+        <header class="sticky top-0 z-40 mb-8">
+            <div class="rounded-2xl border border-stone-200/80 bg-white/90 backdrop-blur shadow-sm px-4 py-4 md:px-6 md:py-5">
+                <div class="flex flex-col gap-5">
+                    <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                        <div class="space-y-2">
+                            <p class="text-sm font-bold tracking-wide text-amber-800">קודקס</p>
+                            <h1 class="text-3xl md:text-4xl font-bold text-stone-900">מונחי משחקי תפקידים</h1>
+                            <p class="max-w-3xl text-sm md:text-base leading-7 text-stone-600">
+                                מאגר מונחים מתורגמים, מסודרים ונוחים לחיפוש — כדי למצוא במהירות את המונח בעברית, המקור באנגלית והפירוש שלו.
+                            </p>
+                        </div>
+
+                        <nav class="flex flex-wrap gap-2 lg:justify-end">
+                            <a href="index.html" class="inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
+                                דף הבית
+                            </a>
+                            <a href="about.html" class="inline-flex items-center rounded-xl border border-stone-300 bg-white px-4 py-2 text-sm font-bold text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
+                                אודות
+                            </a>
+                            <a href="codex.html" class="inline-flex items-center rounded-xl bg-amber-800 px-4 py-2 text-sm font-bold text-white transition hover:bg-amber-900">
+                                המילון המלא
+                            </a>
+                        </nav>
+                    </div>
+
+                    <div class="grid grid-cols-1 gap-3 xl:grid-cols-[minmax(0,1fr)_220px_180px]">
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-bold text-stone-700">חיפוש</span>
+                            <input
+                                type="text"
+                                id="search-input"
+                                placeholder="חפש מונח בעברית, באנגלית או לפי פירוש..."
+                                class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 placeholder-stone-400 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-100"
+                            >
+                        </label>
+
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-bold text-stone-700">נושא</span>
+                            <select
+                                id="tag-filter"
+                                class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-100"
+                            >
+                                <option value="">כל הנושאים</option>
+                            </select>
+                        </label>
+
+                        <label class="block">
+                            <span class="mb-2 block text-sm font-bold text-stone-700">מיון</span>
+                            <select
+                                id="sort-select"
+                                class="w-full rounded-xl border border-stone-300 bg-white px-4 py-3 text-base text-stone-900 outline-none transition focus:border-amber-700 focus:ring-4 focus:ring-amber-100"
+                            >
+                                <option value="relevance">הכי רלוונטי</option>
+                                <option value="hebrew-asc">א׳–ת׳</option>
+                                <option value="english-asc">A–Z</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="flex flex-col gap-2 text-sm text-stone-600 md:flex-row md:items-center md:justify-between">
+                        <div id="results-summary" class="font-medium">טוען מונחים...</div>
+                        <div class="flex flex-wrap items-center gap-2 text-stone-500">
+                            <span class="rounded-full bg-stone-100 px-3 py-1">חיפוש מהיר</span>
+                            <span class="rounded-full bg-stone-100 px-3 py-1">סינון לפי נושא</span>
+                            <span class="rounded-full bg-stone-100 px-3 py-1">קישור ישיר לכל מונח</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div id="dictionary-grid" class="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            </div>
+
+            <p id="loading-message" class="mt-10 text-center text-base font-medium text-stone-500">טוען מונחים...</p>
+            <p id="no-results-message" class="mt-10 hidden text-center text-base font-medium text-stone-500">לא נמצאו מונחים תואמים. נסה חיפוש או סינון אחר.</p>
+        </main>
+
+        <footer class="mt-14 rounded-2xl border border-stone-200 bg-white px-6 py-5 text-center text-sm text-stone-600 shadow-sm">
+            <div class="space-y-1">
+                <p>
+                    מנוהל ע"י
+                    <a href="https://rrpg.top" target="_blank" class="font-bold text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-900">גלגול - משחקי תפקידים למען הקהילה</a>
+                </p>
+                <p>
+                    פותח ע"י
+                    <a href="https://lp.reuven.click" target="_blank" class="font-bold text-amber-800 underline decoration-amber-300 underline-offset-4 hover:text-amber-900">ראובן מנדלוביץ'</a>
+                </p>
+            </div>
+        </footer>
+    </div>
+
+    <div id="word-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-stone-950/55 p-4">
+        <div class="modal-content custom-scrollbar w-full max-w-3xl rounded-2xl border border-stone-200 bg-white shadow-2xl">
+            <div class="sticky top-0 z-10 border-b border-stone-200 bg-white/95 px-5 py-4 backdrop-blur rounded-t-2xl">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="mb-1 text-xs font-bold uppercase tracking-[0.2em] text-amber-800">פרטי מונח</p>
+                        <h2 id="modal-title" class="text-2xl md:text-3xl font-bold text-stone-900"></h2>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <button id="copy-link-button" type="button" class="rounded-xl border border-stone-300 px-3 py-2 text-sm font-bold text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
+                            העתק קישור
+                        </button>
+                        <button id="close-modal" type="button" aria-label="סגור" class="rounded-xl border border-stone-300 px-3 py-2 text-xl leading-none text-stone-700 transition hover:border-amber-700 hover:text-amber-800">
+                            &times;
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div id="modal-body" class="px-5 py-5 md:px-6 md:py-6"></div>
+        </div>
+    </div>
+
+    <script>
+        let dictionaryData = [];
+        let lastRenderedData = [];
+        let currentOpenWordId = '';
+
+        const gridContainer = document.getElementById('dictionary-grid');
+        const searchInput = document.getElementById('search-input');
+        const tagFilter = document.getElementById('tag-filter');
+        const sortSelect = document.getElementById('sort-select');
+        const modal = document.getElementById('word-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const closeButton = document.getElementById('close-modal');
+        const copyLinkButton = document.getElementById('copy-link-button');
+        const loadingMessage = document.getElementById('loading-message');
+        const noResultsMessage = document.getElementById('no-results-message');
+        const resultsSummary = document.getElementById('results-summary');
+
+        const HEBREW_DETAILS_MAP = {
+            gender: "מין",
+            binyan: "בניין",
+            root: "שורש",
+            inflection: "נטייה",
+            verbInflection: "נטיית הפועל"
+        };
+
+        const MAX_PREVIEW_LENGTH = 125;
+        const MAX_VISIBLE_TAGS = 2;
+
+        function encodeWord(word) {
+            return encodeURIComponent(word);
+        }
+
+        function decodeWord(encodedWord) {
+            try {
+                return decodeURIComponent(encodedWord);
+            } catch (e) {
+                console.error('Failed to decode URI component:', encodedWord, e);
+                return '';
+            }
+        }
+
+        function truncateText(text = '', maxLength = MAX_PREVIEW_LENGTH) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength).trim() + '...';
+        }
+
+        function escapeHtml(text = '') {
+            return String(text)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function createCardHtml(item) {
+            const cardId = encodeWord(item.word || '');
+            const definitionPreview = truncateText(item.definition || '');
+            const tags = Array.isArray(item.tags) ? item.tags : [];
+            const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS);
+            const extraTagsCount = Math.max(0, tags.length - MAX_VISIBLE_TAGS);
+
+            let tagsHtml = visibleTags.map(tag => `
+                <span class="inline-flex items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-bold text-amber-800 ring-1 ring-amber-200">
+                    ${escapeHtml(tag)}
+                </span>
+            `).join('');
+
+            if (extraTagsCount > 0) {
+                tagsHtml += `
+                    <span class="inline-flex items-center rounded-full bg-stone-100 px-2.5 py-1 text-xs font-bold text-stone-600 ring-1 ring-stone-200">
+                        +${extraTagsCount}
+                    </span>
+                `;
+            }
+
+            return `
+                <article
+                    data-id="${cardId}"
+                    class="word-card group rounded-2xl border border-stone-200 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:border-amber-300 hover:shadow-md focus-within:border-amber-400"
+                    tabindex="0"
+                >
+                    <div class="mb-3 flex items-start justify-between gap-4">
+                        <div>
+                            <h2 class="text-2xl font-bold leading-tight text-stone-900">${escapeHtml(item.word || '')}</h2>
+                            <p class="mt-1 text-sm text-stone-500"><span class="font-bold text-stone-600">EN:</span> ${escapeHtml(item.sourceEn || '—')}</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 flex flex-wrap gap-2">
+                        ${tagsHtml}
+                    </div>
+
+                    <p class="text-base leading-7 text-stone-700">
+                        ${escapeHtml(definitionPreview)}
+                    </p>
+
+                    <div class="mt-4 pt-4 border-t border-stone-100">
+                        <span class="text-sm font-bold text-amber-800 transition group-hover:text-amber-900">לצפייה מלאה ←</span>
+                    </div>
+                </article>
+            `;
+        }
+
+        function updateResultsSummary(total, shown) {
+            const searchActive = searchInput.value.trim().length > 0;
+            const tagActive = !!tagFilter.value;
+
+            if (total === 0) {
+                resultsSummary.textContent = 'אין מונחים להצגה כרגע.';
+                return;
+            }
+
+            if (!searchActive && !tagActive) {
+                resultsSummary.textContent = `מציג ${shown} מונחים מתוך ${total}`;
+                return;
+            }
+
+            resultsSummary.textContent = `נמצאו ${shown} מונחים תואמים מתוך ${total}`;
+        }
+
+        function renderCards(data) {
+            lastRenderedData = data;
+            gridContainer.innerHTML = data.map(createCardHtml).join('');
+            updateResultsSummary(dictionaryData.length, data.length);
+
+            if (data.length === 0) {
+                noResultsMessage.classList.remove('hidden');
+            } else {
+                noResultsMessage.classList.add('hidden');
+            }
+
+            document.querySelectorAll('.word-card').forEach(card => {
+                card.addEventListener('click', () => openModal(card.dataset.id));
+                card.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        openModal(card.dataset.id);
+                    }
+                });
+            });
+        }
+
+        function buildDetailsTable(word) {
+            const details = Object.keys(HEBREW_DETAILS_MAP)
+                .map(key => ({
+                    label: HEBREW_DETAILS_MAP[key],
+                    value: word?.hebrewDetails?.[key]
+                }))
+                .filter(detail => detail.value && String(detail.value).trim() !== '' && String(detail.value).trim() !== 'אין');
+
+            if (details.length === 0) return '';
+
+            return `
+                <section class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                    <h3 class="mb-3 text-lg font-bold text-stone-900">פירוט לשוני</h3>
+                    <dl class="grid gap-3 md:grid-cols-2">
+                        ${details.map(detail => `
+                            <div class="rounded-xl border border-stone-200 bg-white px-4 py-3">
+                                <dt class="mb-1 text-sm font-bold text-stone-500">${escapeHtml(detail.label)}</dt>
+                                <dd class="text-base font-medium text-stone-900">${escapeHtml(String(detail.value))}</dd>
+                            </div>
+                        `).join('')}
+                    </dl>
+                </section>
+            `;
+        }
+
+        function openModal(encodedWordId) {
+            const wordToFind = decodeWord(encodedWordId);
+            const word = dictionaryData.find(item => item.word === wordToFind);
+            if (!word) return;
+
+            currentOpenWordId = encodedWordId;
+
+            if (window.location.hash.substring(1) !== encodedWordId) {
+                window.location.hash = `#${encodedWordId}`;
+            }
+
+            modalTitle.textContent = word.word || '';
+
+            const tags = Array.isArray(word.tags) ? word.tags : [];
+            const usages = Array.isArray(word.usages) ? word.usages : [];
+
+            const allTagsHtml = tags.length
+                ? `<div class="flex flex-wrap gap-2">${tags.map(tag => `
+                    <span class="inline-flex items-center rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-800 ring-1 ring-amber-200">${escapeHtml(tag)}</span>
+                `).join('')}</div>`
+                : '';
+
+            const usagesHtml = usages.length
+                ? `
+                    <section>
+                        <h3 class="mb-3 text-lg font-bold text-stone-900">שימושים ודוגמאות</h3>
+                        <ul class="space-y-2 pr-5 text-base leading-7 text-stone-700 list-disc">
+                            ${usages.map(u => `<li>${escapeHtml(u)}</li>`).join('')}
+                        </ul>
+                    </section>
+                `
+                : '';
+
+            modalBody.innerHTML = `
+                <div class="space-y-6">
+                    <section class="space-y-4">
+                        ${allTagsHtml}
+                        <div class="rounded-2xl border border-stone-200 bg-stone-50 p-4">
+                            <p class="text-sm font-bold text-stone-500">מקור באנגלית</p>
+                            <p class="mt-1 text-lg font-semibold text-stone-900">${escapeHtml(word.sourceEn || '—')}</p>
+                        </div>
+                    </section>
+
+                    ${buildDetailsTable(word)}
+
+                    <section>
+                        <h3 class="mb-3 text-lg font-bold text-stone-900">פירוש מלא</h3>
+                        <div class="rounded-2xl border border-stone-200 bg-white p-4 text-base leading-8 text-stone-700">
+                            ${escapeHtml(word.definition || '')}
+                        </div>
+                    </section>
+
+                    ${usagesHtml}
+                </div>
+            `;
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.classList.add('modal-open');
+        }
+
+        function closeModal(updateHash = true) {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.classList.remove('modal-open');
+            currentOpenWordId = '';
+
+            if (updateHash && window.location.hash) {
+                history.pushState('', document.title, window.location.pathname + window.location.search);
+            }
+        }
+
+        async function copyCurrentLink() {
+            if (!currentOpenWordId) return;
+            const url = `${window.location.origin}${window.location.pathname}#${currentOpenWordId}`;
+
+            try {
+                await navigator.clipboard.writeText(url);
+                copyLinkButton.textContent = 'הקישור הועתק';
+                setTimeout(() => {
+                    copyLinkButton.textContent = 'העתק קישור';
+                }, 1500);
+            } catch (error) {
+                console.error('Failed to copy link:', error);
+                copyLinkButton.textContent = 'ההעתקה נכשלה';
+                setTimeout(() => {
+                    copyLinkButton.textContent = 'העתק קישור';
+                }, 1500);
+            }
+        }
+
+        function sortEntries(entries, sortMode) {
+            const cloned = [...entries];
+
+            if (sortMode === 'hebrew-asc') {
+                return cloned.sort((a, b) => (a.word || '').localeCompare(b.word || '', 'he'));
+            }
+
+            if (sortMode === 'english-asc') {
+                return cloned.sort((a, b) => (a.sourceEn || '').localeCompare(b.sourceEn || '', 'en'));
+            }
+
+            return cloned.sort((a, b) => {
+                if ((b.score || 0) !== (a.score || 0)) return (b.score || 0) - (a.score || 0);
+                return (a.word || '').localeCompare(b.word || '', 'he');
+            });
+        }
+
+        function applyFilters() {
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const selectedTag = tagFilter.value;
+            const sortMode = sortSelect.value;
+
+            const filteredByTag = dictionaryData.filter(item => {
+                const tags = Array.isArray(item.tags) ? item.tags : [];
+                return !selectedTag || tags.includes(selectedTag);
+            });
+
+            let processed = filteredByTag.map(item => {
+                const wordLower = (item.word || '').toLowerCase();
+                const sourceEnLower = (item.sourceEn || '').toLowerCase();
+                const definitionLower = (item.definition || '').toLowerCase();
+                let score = 0;
+
+                if (searchTerm.length > 0) {
+                    if (wordLower === searchTerm || sourceEnLower === searchTerm) score = 4;
+                    else if (wordLower.startsWith(searchTerm) || sourceEnLower.startsWith(searchTerm)) score = 3;
+                    else if (wordLower.includes(searchTerm) || sourceEnLower.includes(searchTerm)) score = 2;
+                    else if (definitionLower.includes(searchTerm)) score = 1;
+                }
+
+                return { ...item, score };
+            });
+
+            if (searchTerm.length > 0) {
+                processed = processed.filter(item => item.score > 0);
+            }
+
+            const sorted = sortEntries(processed, sortMode);
+            renderCards(sorted);
+        }
+
+        function populateTags() {
+            const allTags = dictionaryData.flatMap(item => Array.isArray(item.tags) ? item.tags : []);
+            const uniqueTags = [...new Set(allTags)].sort((a, b) => a.localeCompare(b, 'he'));
+            tagFilter.innerHTML = `<option value="">כל הנושאים</option>` + uniqueTags.map(tag => `<option value="${escapeHtml(tag)}">${escapeHtml(tag)}</option>`).join('');
+        }
+
+        function checkUrlForWord() {
+            const encodedWordId = window.location.hash.substring(1);
+            if (!encodedWordId) return;
+            setTimeout(() => openModal(encodedWordId), 120);
+        }
+
+        window.onload = async function() {
+            try {
+                const response = await fetch('terms.json');
+                if (!response.ok) throw new Error('Failed to load terms.json');
+
+                dictionaryData = await response.json();
+                loadingMessage.classList.add('hidden');
+            } catch (error) {
+                console.error('Error loading dictionary data:', error);
+                loadingMessage.textContent = 'אירעה שגיאה בטעינת המונחים.';
+                loadingMessage.classList.remove('hidden');
+                loadingMessage.classList.add('text-red-700', 'font-bold');
+                resultsSummary.textContent = 'לא ניתן לטעון את המילון כרגע.';
+                return;
+            }
+
+            populateTags();
+            applyFilters();
+            checkUrlForWord();
+
+            searchInput.addEventListener('input', applyFilters);
+            tagFilter.addEventListener('change', applyFilters);
+            sortSelect.addEventListener('change', applyFilters);
+            closeButton.addEventListener('click', () => closeModal());
+            copyLinkButton.addEventListener('click', copyCurrentLink);
+
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal();
+            });
+
+            window.addEventListener('hashchange', () => {
+                const encodedWordId = window.location.hash.substring(1);
+                if (encodedWordId) {
+                    openModal(encodedWordId);
+                } else if (!modal.classList.contains('hidden')) {
+                    closeModal(false);
+                }
+            });
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                    closeModal();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
