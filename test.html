@@ -39,7 +39,7 @@
 
     <!-- --- נאב-בר (תפריט ניווט עליון) --- -->
     <nav class="bg-stone-200 shadow-md border-b-4 border-amber-900 sticky top-0 z-50 w-full">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2 md:gap-4">
+        <div class="max-w-[1350px] mx-auto px-4 py-3 flex items-center justify-between gap-2 md:gap-4">
             
             <!-- צד ימין: כותרת וכפתורי ניווט -->
             <div class="flex items-center gap-2 md:gap-4 shrink-0">
@@ -82,10 +82,10 @@
     </nav>
 
     <!-- --- אזור התוכן המרכזי --- -->
-    <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-6 md:py-10">
+    <main class="flex-grow w-full max-w-[1350px] mx-auto px-4 py-6 md:py-10">
 
         <!-- ================= 1. תצוגת דף הבית ================= -->
-        <div id="view-home" class="view-section active">
+        <div id="view-home" class="view-section active max-w-4xl mx-auto">
             
             <!-- לוגו וכותרת ראשית -->
             <div class="text-center mb-8 pt-4">
@@ -146,13 +146,13 @@
             </div>
 
             <!-- רשת המילון הרספונסיבית (Grid) -->
-            <div id="full-dictionary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div id="full-dictionary-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- המשבצות יטענו לכאן -->
             </div>
         </div>
 
         <!-- ================= 3. תצוגת עמוד מילה (מונח ספציפי) ================= -->
-        <div id="view-term" class="view-section">
+        <div id="view-term" class="view-section max-w-4xl mx-auto">
             <button onclick="window.history.back()" class="inline-flex items-center text-amber-900 font-bold hover:text-red-800 mb-6 transition group">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
@@ -169,7 +169,7 @@
 
     <!-- --- פוטר --- -->
     <footer class="mt-auto pt-6 pb-6 border-t-4 border-amber-900 bg-stone-200 text-center text-sm w-full shadow-sm">
-        <div class="max-w-4xl mx-auto space-y-2 px-4">
+        <div class="max-w-[1350px] mx-auto space-y-2 px-4">
             <p class="text-amber-900 font-medium">
                 מנוהל ע"י <a href="https://rrpg.top" target="_blank" class="font-bold text-amber-700 hover:text-red-800 underline transition">גלגול - משחקי תפקידים למען הקהילה</a>
             </p>
@@ -414,24 +414,54 @@
             const searchTerm = dictSearchInput.value.toLowerCase().trim();
             const selectedTag = dictTagFilter.value;
 
-            let filtered = dictionaryData.filter(item => {
+            // 1. סינון ראשוני לפי תגית
+            let currentData = dictionaryData.filter(item => {
                 const tagMatch = !selectedTag || (item.tags && item.tags.includes(selectedTag));
-                if (!tagMatch) return false;
-
-                if (searchTerm.length > 0) {
-                    const searchStr = `${item.word} ${item.sourceEn} ${item.definition}`.toLowerCase();
-                    return searchStr.includes(searchTerm);
-                }
-                return true;
+                return tagMatch;
             });
 
-            // *תמיד* ממיין לפי א-ב עברי
-            filtered.sort((a, b) => a.word.localeCompare(b.word, 'he'));
+            if (searchTerm.length === 0) {
+                // אם אין מילת חיפוש, ממיינים אלפביתית ומציגים הכל (לפי התגית)
+                currentData.sort((a, b) => a.word.localeCompare(b.word, 'he'));
+                renderDictCards(currentData);
+                return;
+            }
 
-            if (filtered.length === 0) {
-                fullDictionaryContainer.innerHTML = '<p class="col-span-full text-center text-lg text-red-700 mt-8 font-bold">😔 לא נמצאו רשומות תואמות לקריטריונים.</p>';
+            // 2. חישוב ניקוד וסינון לפי מילת חיפוש
+            const scoredData = currentData.map(item => {
+                const wordLower = item.word.toLowerCase();
+                const sourceEnLower = item.sourceEn.toLowerCase();
+                let score = 0;
+
+                if (wordLower === searchTerm || sourceEnLower === searchTerm) {
+                    score = 3;
+                } else if (wordLower.startsWith(searchTerm) || sourceEnLower.startsWith(searchTerm)) {
+                    score = 2;
+                } else if (wordLower.includes(searchTerm) || sourceEnLower.includes(searchTerm)) {
+                    score = 1;
+                } else if (item.definition.toLowerCase().includes(searchTerm)) {
+                    score = 0.5;
+                }
+
+                return { ...item, score };
+            });
+
+            // 3. סינון לפי ציון ומיון מורכב (ניקוד ואז אלפביתי)
+            const finalFilteredAndSortedData = scoredData
+                .filter(entry => entry.score > 0)
+                .sort((a, b) => {
+                    if (b.score !== a.score) return b.score - a.score;
+                    return a.word.localeCompare(b.word, 'he'); // במקרה של שוויון בניקוד - סדר א"ב
+                });
+
+            renderDictCards(finalFilteredAndSortedData);
+        }
+
+        function renderDictCards(data) {
+            if (data.length === 0) {
+                fullDictionaryContainer.innerHTML = '<p id="no-results-message" class="col-span-full text-center text-lg text-red-700 mt-12 font-bold">😔 לא נמצאו רשומות תואמות לקודקס הנתונים.</p>';
             } else {
-                fullDictionaryContainer.innerHTML = filtered.map(createDictCardHtml).join('');
+                fullDictionaryContainer.innerHTML = data.map(createDictCardHtml).join('');
             }
         }
 
