@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>קודקס - מונחון ישראלי למשחקי תפקידים</title>
+    
+    <!-- סמל האתר (Favicon) -->
+    <link rel="icon" type="image/png" href="icon.png">
+    
+    <!-- טעינת Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- טעינת פונט ALEF ו-Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Alef:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Alef', Inter, sans-serif;
+            direction: rtl;
+            text-align: right;
+            scroll-behavior: smooth;
+        }
+        /* מחלקת עזר להסתרת עמודים (Views) */
+        .view-section {
+            display: none;
+        }
+        .view-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-stone-100 text-gray-900 flex flex-col min-h-screen">
+
+    <!-- --- נאב-בר (תפריט ניווט עליון) --- -->
+    <nav class="bg-stone-200 shadow-md border-b-4 border-amber-900 sticky top-0 z-50 w-full">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-2 md:gap-4">
+            
+            <!-- צד ימין: כותרת וכפתורי ניווט -->
+            <div class="flex items-center gap-2 md:gap-4 shrink-0">
+                <!-- אייקון קטן לנאב-בר -->
+                <div class="hidden md:block">
+                    <img src="icon.png" alt="סמל קודקס" class="h-8 w-8 object-contain">
+                </div>
+                <h1 class="text-xl md:text-2xl font-extrabold text-amber-900 hidden lg:block whitespace-nowrap">
+                    קודקס
+                </h1>
+                
+                <!-- כפתורים -->
+                <div class="flex gap-1 md:gap-2">
+                    <a href="#home" id="nav-btn-home" class="inline-block px-3 py-2 bg-red-800 text-white text-sm md:text-base font-bold rounded-sm shadow-md transition duration-300">
+                        בית
+                    </a>
+                    <a href="#dictionary" id="nav-btn-dictionary" class="inline-block px-3 py-2 bg-amber-900 text-white text-sm md:text-base font-bold rounded-sm shadow-md transition duration-300 whitespace-nowrap">
+                        המילון המלא
+                    </a>
+                </div>
+            </div>
+
+            <!-- צד שמאל: תיבת חיפוש -->
+            <div class="relative flex-1 max-w-[160px] sm:max-w-xs">
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-amber-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <input type="text" id="nav-search-input" placeholder="חיפוש מילה במונחון..." 
+                       class="block w-full pl-3 pr-10 py-2 border-2 border-amber-900 rounded-sm leading-5 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-700 sm:text-sm transition-colors">
+                
+                <!-- תוצאות חיפוש מהנאב-בר (Dropdown) -->
+                <div id="nav-search-results" class="absolute z-50 mt-1 w-full bg-white shadow-xl max-h-72 rounded-sm border border-amber-200 overflow-auto hidden">
+                    <!-- התוצאות ירונדרו לכאן -->
+                </div>
+            </div>
+            
+        </div>
+    </nav>
+
+    <!-- --- אזור התוכן המרכזי --- -->
+    <main class="flex-grow w-full max-w-4xl mx-auto px-4 py-6 md:py-10">
+
+        <!-- ================= 1. תצוגת דף הבית ================= -->
+        <div id="view-home" class="view-section active">
+            
+            <!-- לוגו וכותרת ראשית -->
+            <div class="text-center mb-8 pt-4">
+                <div class="flex justify-center mb-6">
+                    <!-- תמונת הלוגו המרכזית -->
+                    <img src="logo.png" alt="לוגו קודקס" class="h-24 md:h-32 object-contain drop-shadow-md">
+                </div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-amber-900 mb-4">קודקס מונחי משחקי תפקידים</h1>
+            </div>
+
+            <!-- בלוק ההסבר החדש -->
+            <section class="mb-10 p-6 md:p-8 bg-white border-2 border-amber-700 rounded-sm shadow-lg text-lg">
+                <p class="text-gray-800 leading-relaxed mb-4">
+                    קודקס מונחי משחקי תפקידים הוא פרויקט קהילתי שמטרתו ליצור מילון מקיף ומדויק למונחים המרכזיים בעולם משחקי התפקידים השולחניים. הקודקס מתמקד בתרגום, יצירת מונחים עבריים תקניים וניסוח הגדרות קצרות וברורות שישמשו את קהילת השחקנים והמנחים בישראל.
+                </p>
+                <p class="text-gray-800 leading-relaxed mb-6">
+                    המילון מכסה מונחים מכניקה, דמויות, עלילה וציוד, ומספק לכל מונח פירוש מפורט, מקור באנגלית ודוגמאות שימוש נפוצות. הקודקס הוא משאב חי ודינמי, ונתונים חדשים יתווספו אליו מעת לעת.
+                </p>
+                <div class="bg-stone-100 p-4 rounded text-center border border-amber-200">
+                    <p class="text-gray-900 font-semibold text-xl">
+                        נכון לעכשיו, הקודקס כולל <span id="term-count" class="text-red-700 text-3xl font-extrabold">0</span> מונחים.
+                    </p>
+                </div>
+            </section>
+
+            <!-- בלוק חיפוש מרכזי -->
+            <section class="mb-8">
+                <h2 class="text-2xl font-bold text-amber-900 mb-4 border-b border-amber-900 pb-2">חיפוש מהיר</h2>
+                <div class="relative">
+                    <input type="text" id="main-search-input" placeholder="חפש מילה בעברית או באנגלית (לדוגמה: מנחה, DM, חוכמה)..."
+                        class="w-full p-4 border-2 border-amber-900 bg-white text-gray-900 placeholder-gray-500 text-lg focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm shadow-inner">
+                </div>
+                <p id="main-search-status" class="text-sm text-gray-600 mt-2 font-medium">הקלד מילה בעברית או באנגלית כדי לחפש בקודקס.</p>
+            </section>
+
+            <!-- אזור תוצאות החיפוש המרכזי -->
+            <section id="main-results-container" class="grid grid-cols-1 mb-10 shadow-md rounded-sm overflow-hidden">
+                <!-- תוצאות החיפוש של דף הבית יוצגו כאן -->
+            </section>
+
+        </div>
+
+        <!-- ================= 2. תצוגת עמוד המילון המלא ================= -->
+        <div id="view-dictionary" class="view-section w-full max-w-none">
+            <h2 class="text-3xl font-extrabold text-amber-900 mb-6 border-b-4 border-amber-900 pb-2 inline-block">המילון המלא</h2>
+            
+            <!-- סרגל סינון למילון -->
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <!-- חיפוש מקומי במילון -->
+                <input type="text" id="dict-search-input" placeholder="סינון לפי מילה או פירוש..."
+                       class="flex-1 p-3 border-2 border-amber-900 bg-white text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm">
+                
+                <!-- סינון לפי נושא/תגית -->
+                <select id="dict-tag-filter" class="p-3 border-2 border-amber-900 bg-white text-gray-900 focus:outline-none focus:ring-4 focus:ring-amber-700 transition duration-150 rounded-sm md:w-64">
+                    <option value="" class="bg-white">כל הנושאים</option>
+                    <!-- ימולא דינמית -->
+                </select>
+            </div>
+
+            <!-- רשת המילון הרספונסיבית (Grid) -->
+            <div id="full-dictionary-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- המשבצות יטענו לכאן -->
+            </div>
+        </div>
+
+        <!-- ================= 3. תצוגת עמוד מילה (מונח ספציפי) ================= -->
+        <div id="view-term" class="view-section">
+            <button onclick="window.history.back()" class="inline-flex items-center text-amber-900 font-bold hover:text-red-800 mb-6 transition group">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-1 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+                חזרה אחורה
+            </button>
+            
+            <article id="term-content-container" class="bg-stone-50 p-6 md:p-10 border-2 border-amber-900 rounded-sm shadow-xl relative overflow-hidden">
+                <!-- תוכן המילה ייווצר כאן דינמית -->
+            </article>
+        </div>
+
+    </main>
+
+    <!-- --- פוטר --- -->
+    <footer class="mt-auto pt-6 pb-6 border-t-4 border-amber-900 bg-stone-200 text-center text-sm w-full shadow-sm">
+        <div class="max-w-4xl mx-auto space-y-2 px-4">
+            <p class="text-amber-900 font-medium">
+                מנוהל ע"י <a href="https://rrpg.top" target="_blank" class="font-bold text-amber-700 hover:text-red-800 underline transition">גלגול - משחקי תפקידים למען הקהילה</a>
+            </p>
+            <p class="text-amber-900 font-medium">
+                פותח ע"י <a href="https://lp.reuven.click" target="_blank" class="font-bold text-amber-700 hover:text-red-800 underline transition">ראובן מנדלוביץ'</a>
+            </p>
+        </div>
+    </footer>
+
+    <!-- JavaScript לניהול היישום -->
+    <script>
+        const HEBREW_DETAILS_MAP = {
+            gender: "מין",
+            binyan: "בניין",
+            root: "שורש",
+            inflection: "נטייה",
+            verbInflection: "נטיית הפועל"
+        };
+
+        let dictionaryData = [];
+        const MAX_PREVIEW_LENGTH = 100;
+        const MAX_VISIBLE_TAGS = 3;
+        
+        // DOM Elements
+        const termCountElement = document.getElementById('term-count');
+        const mainSearchInput = document.getElementById('main-search-input');
+        const navSearchInput = document.getElementById('nav-search-input');
+        const mainResultsContainer = document.getElementById('main-results-container');
+        const navResultsContainer = document.getElementById('nav-search-results');
+        const mainSearchStatus = document.getElementById('main-search-status');
+        
+        // Dictionary view specific DOM
+        const dictSearchInput = document.getElementById('dict-search-input');
+        const dictTagFilter = document.getElementById('dict-tag-filter');
+        const fullDictionaryContainer = document.getElementById('full-dictionary-container');
+
+        // --- 1. Router & View Management ---
+        
+        function updateNavButtons(viewId) {
+            const btnHome = document.getElementById('nav-btn-home');
+            const btnDict = document.getElementById('nav-btn-dictionary');
+            
+            const activeClasses = ['bg-red-800', 'hover:bg-red-900'];
+            const inactiveClasses = ['bg-amber-900', 'hover:bg-amber-700'];
+            
+            btnHome.classList.remove(...activeClasses, ...inactiveClasses);
+            btnDict.classList.remove(...activeClasses, ...inactiveClasses);
+            
+            if (viewId === 'home') {
+                btnHome.classList.add(...activeClasses);
+                btnDict.classList.add(...inactiveClasses);
+            } else if (viewId === 'dictionary') {
+                btnHome.classList.add(...inactiveClasses);
+                btnDict.classList.add(...activeClasses);
+            } else {
+                // אנחנו בעמוד מילה - אף כפתור לא פעיל
+                btnHome.classList.add(...inactiveClasses);
+                btnDict.classList.add(...inactiveClasses);
+            }
+        }
+
+        function showView(viewId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            const targetView = document.getElementById(`view-${viewId}`);
+            if(targetView) targetView.classList.add('active');
+            window.scrollTo(0, 0);
+            navResultsContainer.classList.add('hidden');
+            navSearchInput.value = '';
+            
+            updateNavButtons(viewId);
+        }
+
+        window.addEventListener('hashchange', handleRoute);
+
+        function handleRoute() {
+            const hash = decodeURIComponent(window.location.hash.substring(1));
+            if (!hash || hash === 'home') {
+                showView('home');
+            } else if (hash === 'dictionary') {
+                renderFullDictionary();
+                showView('dictionary');
+            } else if (hash.startsWith('term:')) {
+                const word = hash.substring(5);
+                const term = dictionaryData.find(t => t.word === word);
+                if (term) {
+                    renderTermPage(term);
+                    showView('term');
+                } else {
+                    window.location.hash = 'home';
+                }
+            } else {
+                const term = dictionaryData.find(t => t.word === hash);
+                window.location.hash = term ? `term:${term.word}` : 'home';
+            }
+        }
+
+        // --- 2. HTML Generators & Rendering ---
+
+        function truncateText(text, maxLength = MAX_PREVIEW_LENGTH) {
+            return text.length <= maxLength ? text : text.substring(0, maxLength).trim() + '...';
+        }
+
+        // List item for homepage / nav search
+        function createListCardHtml(item) {
+            const definitionPreview = truncateText(item.definition);
+            return `
+                <a href="#term:${encodeURIComponent(item.word)}"
+                    class="p-4 bg-white border-b border-gray-200 last:border-b-0 flex flex-col md:flex-row justify-between items-start transition-all duration-200 hover:bg-amber-100 gap-2">
+                    <div class="text-right md:w-1/3">
+                        <h3 class="text-2xl font-extrabold text-amber-900 mb-1">${item.word}</h3>
+                        <p class="text-sm text-gray-600 font-medium ltr" style="direction: ltr; text-align: left;">${item.sourceEn}</p>
+                    </div>
+                    <div class="text-right md:w-2/3 md:pl-2 md:border-r-2 md:border-amber-100 md:pr-4 mt-2 md:mt-0">
+                        <p class="text-gray-700 text-base leading-snug">${definitionPreview}</p>
+                    </div>
+                </a>
+            `;
+        }
+
+        // Grid Card for full dictionary view
+        function createDictCardHtml(item) {
+            const definitionPreview = truncateText(item.definition);
+            const tags = item.tags || [];
+            const visibleTags = tags.slice(0, MAX_VISIBLE_TAGS);
+            const extraTagsCount = tags.length - MAX_VISIBLE_TAGS;
+
+            let tagsHtml = visibleTags.map(tag =>
+                `<span class="inline-block bg-red-900/10 text-red-700 text-xs font-medium px-2.5 py-0.5 rounded-sm ml-2 whitespace-nowrap border border-red-900/50">${tag}</span>`
+            ).join('');
+            if (extraTagsCount > 0) {
+                tagsHtml += `<span class="inline-block bg-stone-200 text-gray-700 text-xs font-medium px-2.5 py-0.5 rounded-sm ml-2 whitespace-nowrap border border-stone-300">+${extraTagsCount}</span>`;
+            }
+
+            return `
+                <a href="#term:${encodeURIComponent(item.word)}"
+                    class="block bg-stone-50 p-5 border-2 border-amber-900 rounded-sm shadow-[0_5px_15px_rgba(120,53,15,0.2)] hover:shadow-[0_8px_20px_rgba(120,53,15,0.4)] hover:scale-[1.02] transition transform duration-300">
+                    <h2 class="text-2xl font-extrabold text-amber-900 mb-2">${item.word}</h2>
+                    <div class="mb-3 flex flex-wrap gap-y-1">${tagsHtml}</div>
+                    <p class="text-sm text-gray-600 mb-2 font-medium">מקור (EN): <span class="font-bold ml-1 ltr inline-block" style="direction:ltr;">${item.sourceEn}</span></p>
+                    <p class="text-base text-gray-800 font-medium leading-snug">${definitionPreview}</p>
+                </a>
+            `;
+        }
+
+        // Full Term Page
+        function renderTermPage(word) {
+            const container = document.getElementById('term-content-container');
+            
+            // Build Tags
+            const tags = word.tags || [];
+            const tagsHtml = tags.map(tag =>
+                `<span class="inline-block bg-red-900/10 text-red-700 text-sm font-medium px-3 py-1 rounded-sm ml-2 mb-2 border border-red-900/50">${tag}</span>`
+            ).join('');
+
+            // Build Hebrew Details Table
+            let fullDetailsTable = [];
+            if (word.hebrewDetails) {
+                fullDetailsTable = Object.keys(HEBREW_DETAILS_MAP)
+                    .map(key => ({ label: HEBREW_DETAILS_MAP[key], value: word.hebrewDetails[key] }))
+                    .filter(detail => detail.value && detail.value.trim() !== '' && detail.value.trim() !== 'אין' && detail.value.trim() !== 'ריק');
+            }
+
+            const hebrewDetailsHtml = fullDetailsTable.length > 0 ? `
+                <h3 class="text-xl font-semibold mt-4 mb-2 border-b border-amber-900 pb-1 text-amber-900">פירוט לשוני:</h3>
+                <table class="w-full text-base text-gray-700 mb-6">
+                    <tbody>
+                        ${fullDetailsTable.map(d => `
+                            <tr class="border-b border-stone-300 last:border-b-0">
+                                <th class="py-2 pr-0 font-bold w-1/3 text-right text-amber-900">${d.label}:</th>
+                                <td class="py-2 pl-0 font-normal w-2/3 text-right">${d.value}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            ` : '';
+
+            // Build Usages list
+            const usagesHtml = (word.usages && word.usages.length > 0) ? `
+                <h3 class="text-xl font-semibold mt-6 mb-2 border-b border-amber-900 pb-1 text-amber-900">שימושים ודוגמאות:</h3>
+                <ul class="list-disc pr-5 space-y-2 text-gray-800 text-lg">
+                    ${word.usages.map(u => `<li>${u}</li>`).join('')}
+                </ul>
+            ` : '';
+
+            // Build Related Terms
+            let relatedTermsHtml = '';
+            if (word.tags && word.tags.length > 0) {
+                // חיפוש מילים שחולקות לפחות תגית אחת עם המילה הנוכחית
+                const related = dictionaryData.filter(item => 
+                    item.word !== word.word && 
+                    item.tags && 
+                    item.tags.some(tag => word.tags.includes(tag))
+                ).slice(0, 3);
+                
+                if (related.length > 0) {
+                    relatedTermsHtml = `
+                        <div class="mt-10 pt-6 border-t-2 border-stone-200">
+                            <h3 class="text-xl font-bold text-amber-900 mb-4">מונחים קשורים מאותו נושא:</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                ${related.map(r => `
+                                    <a href="#term:${encodeURIComponent(r.word)}" class="block bg-white p-4 border-2 border-amber-100 rounded-sm hover:border-amber-400 hover:shadow-md transition duration-200">
+                                        <h4 class="font-bold text-amber-900 text-lg mb-1">${r.word}</h4>
+                                        <p class="text-sm text-gray-500 font-bold ltr inline-block w-full" style="direction: ltr; text-align: left;">${r.sourceEn}</p>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+
+            container.innerHTML = `
+                <div class="mb-4 flex flex-wrap gap-y-1">${tagsHtml}</div>
+                <h1 class="text-4xl md:text-5xl font-extrabold text-amber-900 mb-2">${word.word}</h1>
+                <p class="text-lg text-gray-600 mb-6">מקור באנגלית: <span class="font-bold text-xl ml-1 ltr inline-block" style="direction: ltr;">${word.sourceEn}</span></p>
+                
+                ${hebrewDetailsHtml}
+                
+                <h3 class="text-xl font-semibold mt-6 mb-2 border-b border-amber-900 pb-1 text-amber-900">פירוש מלא:</h3>
+                <p class="text-xl text-gray-800 leading-relaxed whitespace-pre-line mb-6">${word.definition}</p>
+                
+                ${usagesHtml}
+                ${relatedTermsHtml}
+            `;
+        }
+
+        // --- 3. Dictionary Grid Filter & Sort ---
+
+        function populateTags() {
+            const allTags = dictionaryData.flatMap(item => item.tags || []);
+            const uniqueTags = [...new Set(allTags)].sort();
+            dictTagFilter.innerHTML = `<option value="" class="bg-white">כל הנושאים</option>` + 
+                uniqueTags.map(tag => `<option value="${tag}" class="bg-white">${tag}</option>`).join('');
+        }
+
+        function renderFullDictionary() {
+            if (dictTagFilter.options.length <= 1) populateTags();
+            applyDictFilters();
+        }
+
+        function applyDictFilters() {
+            const searchTerm = dictSearchInput.value.toLowerCase().trim();
+            const selectedTag = dictTagFilter.value;
+
+            let filtered = dictionaryData.filter(item => {
+                const tagMatch = !selectedTag || (item.tags && item.tags.includes(selectedTag));
+                if (!tagMatch) return false;
+
+                if (searchTerm.length > 0) {
+                    const searchStr = `${item.word} ${item.sourceEn} ${item.definition}`.toLowerCase();
+                    return searchStr.includes(searchTerm);
+                }
+                return true;
+            });
+
+            // *תמיד* ממיין לפי א-ב עברי
+            filtered.sort((a, b) => a.word.localeCompare(b.word, 'he'));
+
+            if (filtered.length === 0) {
+                fullDictionaryContainer.innerHTML = '<p class="col-span-full text-center text-lg text-red-700 mt-8 font-bold">😔 לא נמצאו רשומות תואמות לקריטריונים.</p>';
+            } else {
+                fullDictionaryContainer.innerHTML = filtered.map(createDictCardHtml).join('');
+            }
+        }
+
+        dictSearchInput.addEventListener('input', applyDictFilters);
+        dictTagFilter.addEventListener('change', applyDictFilters);
+
+        // --- 4. Main Search Logic (Quick Search) ---
+        
+        function performSearch(term) {
+            const searchTerm = term.toLowerCase().trim();
+            if (searchTerm.length < 2) return [];
+
+            let results = dictionaryData.map(item => {
+                let score = 0;
+                const searchStr = `${item.word} ${item.sourceEn}`.toLowerCase();
+                if (searchStr === searchTerm) score = 3;
+                else if (item.word.toLowerCase().startsWith(searchTerm) || item.sourceEn.toLowerCase().startsWith(searchTerm)) score = 2;
+                else if (searchStr.includes(searchTerm)) score = 1;
+                else if (item.definition.toLowerCase().includes(searchTerm)) score = 0.5;
+
+                return { ...item, score };
+            }).filter(entry => entry.score > 0);
+
+            // לוקח את הרלוונטיים ביותר (כדי לא לאבד התאמה מדויקת), ואז ממיין את המובחרים אלפביתית
+            results.sort((a, b) => b.score - a.score);
+            let topResults = results.slice(0, 5);
+            topResults.sort((a, b) => a.word.localeCompare(b.word, 'he')); 
+            
+            return topResults;
+        }
+
+        mainSearchInput.addEventListener('input', (e) => {
+            const results = performSearch(e.target.value);
+            if (e.target.value.trim().length < 2) {
+                mainResultsContainer.innerHTML = '';
+                mainSearchStatus.textContent = 'הקלד לפחות 2 אותיות כדי להתחיל בחיפוש...';
+                return;
+            }
+            mainResultsContainer.innerHTML = results.map(createListCardHtml).join('');
+            mainSearchStatus.textContent = results.length === 0 
+                ? `לא נמצאו מונחים מתאימים לחיפוש "${e.target.value}".` 
+                : `נמצאו תוצאות. מציג אותן בסדר א"ב:`;
+        });
+
+        navSearchInput.addEventListener('input', (e) => {
+            const results = performSearch(e.target.value);
+            if (e.target.value.trim().length < 2) {
+                navResultsContainer.classList.add('hidden');
+                return;
+            }
+            if (results.length > 0) {
+                navResultsContainer.innerHTML = results.map(r => `
+                    <a href="#term:${encodeURIComponent(r.word)}" class="block px-4 py-3 border-b border-amber-100 hover:bg-amber-50 transition-colors">
+                        <div class="font-bold text-amber-900">${r.word}</div>
+                        <div class="text-xs text-gray-500 ltr" style="direction: ltr; text-align: left;">${r.sourceEn}</div>
+                    </a>`).join('');
+            } else {
+                navResultsContainer.innerHTML = '<div class="p-4 text-sm text-gray-500">לא נמצאו תוצאות...</div>';
+            }
+            navResultsContainer.classList.remove('hidden');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!navSearchInput.contains(e.target) && !navResultsContainer.contains(e.target)) {
+                navResultsContainer.classList.add('hidden');
+            }
+        });
+
+        // --- 5. Boot Up ---
+        
+        window.onload = async function () {
+            termCountElement.textContent = 'טוען...';
+            
+            try {
+                const response = await fetch('terms.json');
+                if (!response.ok) throw new Error(`Status: ${response.status}`);
+                dictionaryData = await response.json();
+                
+                termCountElement.textContent = dictionaryData.length;
+                handleRoute();
+            } catch (error) {
+                console.error("Critical Error: Could not load terms.json.", error);
+                
+                termCountElement.textContent = 'שגיאה';
+                termCountElement.classList.add('text-red-700');
+                
+                mainSearchStatus.innerHTML = '<span class="text-red-700 font-bold">❌ שגיאה קריטית: נתוני המילון (terms.json) לא נטענו. יש לוודא שהקובץ קיים ונגיש.</span>';
+                mainSearchInput.disabled = true;
+                navSearchInput.disabled = true;
+                
+                if (dictSearchInput) dictSearchInput.disabled = true;
+            }
+        };
+    </script>
+</body>
+</html>
