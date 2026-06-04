@@ -398,6 +398,34 @@
 
         // --- 3. Dictionary Grid Filter & Sort ---
 
+        // פונקציית עזר מרכזית לחישוב ציון התאמה לחיפוש
+        function calculateSearchScore(item, searchTerm) {
+            const wordLower = item.word.toLowerCase();
+            const sourceEnLower = item.sourceEn.toLowerCase();
+            const definitionLower = item.definition.toLowerCase();
+            let score = 0;
+
+            // 1. המונח בעברית
+            if (wordLower === searchTerm) score = Math.max(score, 100); // התאמה מדויקת
+            else if (wordLower.startsWith(searchTerm)) score = Math.max(score, 80); // מתחיל ב...
+            else if (wordLower.includes(searchTerm)) score = Math.max(score, 60); // מכיל בתוכו
+
+            // 2. המונח באנגלית
+            if (sourceEnLower === searchTerm) score = Math.max(score, 95);
+            else if (sourceEnLower.startsWith(searchTerm)) score = Math.max(score, 75);
+            else if (sourceEnLower.includes(searchTerm)) score = Math.max(score, 55);
+
+            // 3. פירוש המילה
+            if (definitionLower.includes(searchTerm)) score = Math.max(score, 30);
+
+            // 4. דוגמאות לשימוש
+            if (item.usages && item.usages.some(u => u.toLowerCase().includes(searchTerm))) {
+                score = Math.max(score, 10);
+            }
+
+            return score;
+        }
+
         function populateTags() {
             const allTags = dictionaryData.flatMap(item => item.tags || []);
             const uniqueTags = [...new Set(allTags)].sort();
@@ -414,7 +442,7 @@
             const searchTerm = dictSearchInput.value.toLowerCase().trim();
             const selectedTag = dictTagFilter.value;
 
-            // 1. סינון ראשוני לפי תגית
+            // סינון ראשוני לפי תגית
             let currentData = dictionaryData.filter(item => {
                 const tagMatch = !selectedTag || (item.tags && item.tags.includes(selectedTag));
                 return tagMatch;
@@ -427,26 +455,13 @@
                 return;
             }
 
-            // 2. חישוב ניקוד וסינון לפי מילת חיפוש
+            // חישוב ניקוד וסינון לפי מילת חיפוש באמצעות הפונקציה המרכזית
             const scoredData = currentData.map(item => {
-                const wordLower = item.word.toLowerCase();
-                const sourceEnLower = item.sourceEn.toLowerCase();
-                let score = 0;
-
-                if (wordLower === searchTerm || sourceEnLower === searchTerm) {
-                    score = 3;
-                } else if (wordLower.startsWith(searchTerm) || sourceEnLower.startsWith(searchTerm)) {
-                    score = 2;
-                } else if (wordLower.includes(searchTerm) || sourceEnLower.includes(searchTerm)) {
-                    score = 1;
-                } else if (item.definition.toLowerCase().includes(searchTerm)) {
-                    score = 0.5;
-                }
-
+                let score = calculateSearchScore(item, searchTerm);
                 return { ...item, score };
             });
 
-            // 3. סינון לפי ציון ומיון מורכב (ניקוד ואז אלפביתי)
+            // סינון לפי ציון ומיון מורכב (ניקוד ואז אלפביתי)
             const finalFilteredAndSortedData = scoredData
                 .filter(entry => entry.score > 0)
                 .sort((a, b) => {
@@ -475,22 +490,18 @@
             if (searchTerm.length < 2) return [];
 
             let results = dictionaryData.map(item => {
-                let score = 0;
-                const searchStr = `${item.word} ${item.sourceEn}`.toLowerCase();
-                if (searchStr === searchTerm) score = 3;
-                else if (item.word.toLowerCase().startsWith(searchTerm) || item.sourceEn.toLowerCase().startsWith(searchTerm)) score = 2;
-                else if (searchStr.includes(searchTerm)) score = 1;
-                else if (item.definition.toLowerCase().includes(searchTerm)) score = 0.5;
-
+                let score = calculateSearchScore(item, searchTerm);
                 return { ...item, score };
             }).filter(entry => entry.score > 0);
 
-            // לוקח את הרלוונטיים ביותר (כדי לא לאבד התאמה מדויקת), ואז ממיין את המובחרים אלפביתית
-            results.sort((a, b) => b.score - a.score);
-            let topResults = results.slice(0, 5);
-            topResults.sort((a, b) => a.word.localeCompare(b.word, 'he')); 
+            // לוקח את הרלוונטיים ביותר לפי הניקוד המדורג שלנו
+            results.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.word.localeCompare(b.word, 'he'); 
+            });
             
-            return topResults;
+            // הגבלת תוצאות ל-5 בחיפוש המהיר (דף הבית/נאבבר)
+            return results.slice(0, 5);
         }
 
         mainSearchInput.addEventListener('input', (e) => {
@@ -503,7 +514,7 @@
             mainResultsContainer.innerHTML = results.map(createListCardHtml).join('');
             mainSearchStatus.textContent = results.length === 0 
                 ? `לא נמצאו מונחים מתאימים לחיפוש "${e.target.value}".` 
-                : `נמצאו תוצאות. מציג אותן בסדר א"ב:`;
+                : `נמצאו תוצאות. מציג את הרלוונטיות ביותר:`;
         });
 
         navSearchInput.addEventListener('input', (e) => {
